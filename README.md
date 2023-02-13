@@ -1,1 +1,1 @@
-# code-finance
+O Code Finance é um sistema financeiro pessoal desenvolvido em C# .NET usando o Entity Framework para persistir dados e o CQRS para separar a escrita da leitura. O front-end foi criado usando ReactJS com componentes Ant Design e a pipeline de implantação foi criada usando Jenkins. O banco de dados principal é o SQL Server, enquanto o MongoDB é usado para leitura e o RabbitMQ é usado para sincronizar as bases de dados.
