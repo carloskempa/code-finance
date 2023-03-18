@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CodeFinance.Data.Repositories
 {
-    public class MovimentacaoRepository : IMovimentoRepository
+    public class MovimentacaoRepository : IMovimentacaoRepository
     {
         private readonly CodeFinanceContext _context;
 
@@ -27,6 +27,7 @@ namespace CodeFinance.Data.Repositories
 
         public void Adicionar(Movimentacao movimentacao)
         {
+            movimentacao.DataCadastro = DateTime.Now;
             _context.Movimentacoes.Add(movimentacao);
         }
 

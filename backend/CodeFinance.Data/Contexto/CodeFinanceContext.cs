@@ -1,4 +1,5 @@
-﻿using CodeFinance.Domain.Core.Communication;
+﻿using CodeFinance.Data.Mapping;
+using CodeFinance.Domain.Core.Communication;
 using CodeFinance.Domain.Core.Data;
 using CodeFinance.Domain.Core.Messages;
 using CodeFinance.Domain.Entidades;
@@ -17,6 +18,7 @@ namespace CodeFinance.Data.Contexto
             : base(options)
         {
             _mediatorHandler = mediatorHandler;
+            this.Database.SetCommandTimeout(100);
         }
 
         public DbSet<Usuario> Usuarios { get; set; }
@@ -28,19 +30,6 @@ namespace CodeFinance.Data.Contexto
 
         public async Task<bool> Commit()
         {
-            foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("DataCadastro") != null))
-            {
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Property("DataCadastro").CurrentValue = DateTime.Now;
-                }
-
-                if (entry.State == EntityState.Modified)
-                {
-                    entry.Property("DataCadastro").IsModified = false;
-                }
-            }
-
             var resultado = await base.SaveChangesAsync() > 0;
 
             if (resultado) 
@@ -52,14 +41,26 @@ namespace CodeFinance.Data.Contexto
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Ignore<Event>();
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(CodeFinanceContext).Assembly);
+
+            modelBuilder.ApplyConfiguration(new UsuarioMapping());
+            modelBuilder.ApplyConfiguration(new CategoriaMapping());
+            modelBuilder.ApplyConfiguration(new SaldoMapping());
+            modelBuilder.ApplyConfiguration(new MetaMapping());
+            modelBuilder.ApplyConfiguration(new OrcamentoMapping());
+            modelBuilder.ApplyConfiguration(new MovimentacaoMapping());
 
             foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {
                 relationship.DeleteBehavior = DeleteBehavior.ClientSetNull;
             }
-            
+
             base.OnModelCreating(modelBuilder);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.LogTo(Console.WriteLine);
+            base.OnConfiguring(optionsBuilder);
         }
 
     }

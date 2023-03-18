@@ -5,16 +5,16 @@ namespace CodeFinance.Domain.Entidades
 {
     public class Saldo : Entity
     {
-        public Saldo(Guid usuarioId, decimal saldoAtual)
+        public Saldo(decimal saldo)
         {
-            UsuarioId = usuarioId;
-            SaldoAtual = saldoAtual;
+            SaldoAtual = saldo;
             DataUltimaAlteracaoSaldo = null;
         }
+        protected Saldo() { }
 
-        public Guid UsuarioId { get; private set; }
         public decimal SaldoAtual { get; private set; }
         public DateTime? DataUltimaAlteracaoSaldo { get; private set; }
+        public Guid UsuarioId { get; private set; }
 
 
         //Ef 
@@ -38,7 +38,6 @@ namespace CodeFinance.Domain.Entidades
         public override void Validar()
         {
             Validacoes.ValidarSeMenorQue(SaldoAtual, 0, "Saldo inválido. Por favor, insira um saldo maior ou igual a zero.");
-            Validacoes.ValidarSeIgual(UsuarioId, Guid.Empty, "ID de usuário inválido. Por favor, insira um ID de usuário válido.");
         }
     }
 }

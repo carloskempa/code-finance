@@ -21,23 +21,20 @@ namespace CodeFinance.Application.App
         {
         }
 
-        public Task<RetornoPadrao<CategoriaDto>> Cadastrar(CategoriaDto categoria, Guid userId)
+        public async Task<RetornoPadrao<CategoriaDto>> Cadastrar(CategoriaDto categoria, Guid userId)
         {
             _logger.Information("CategoriaApp - Iniciando cadastro categoria - Request: {categoria}", categoria.Json());
 
-            TryCatch(async () =>
-            {
-                var comando = new CadastrarCategoriaCommand(categoria.Nome, userId);
-                await _mediatorHandler.EnviarComando(comando);
-            });
+            var comando = new CadastrarCategoriaCommand(categoria.Nome, userId);
+            await _mediatorHandler.EnviarComando(comando);
 
             if (!OperacaoValida())
             {
                 _logger.Warning("CategoriaApp - Não foi possivel cadastrar a categoria {nomeCategoria} - {motivos}", categoria.Nome, ObterMensagensErro.Json());
-                return Task.FromResult(Error<CategoriaDto>(ObterMensagensErro));
+                return Error<CategoriaDto>(ObterMensagensErro);
             }
 
-            return Task.FromResult(Sucesso<CategoriaDto>("Categoria cadastrada com sucesso."));
+            return Sucesso<CategoriaDto>("Categoria cadastrada com sucesso.");
         }
 
 
@@ -45,10 +42,7 @@ namespace CodeFinance.Application.App
         {
             _logger.Information("CategoriaApp - Iniciando atualização da categoria - Request: {categoria}", categoria.Json());
 
-            TryCatch(async () =>
-            {
 
-            });
 
             if (!OperacaoValida())
             {

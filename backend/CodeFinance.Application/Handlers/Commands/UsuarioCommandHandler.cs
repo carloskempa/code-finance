@@ -1,17 +1,15 @@
-﻿using AutoMapper;
-using AutoMapper.Configuration;
-using CodeFinance.Application.Commands;
-using CodeFinance.Application.Dtos;
+﻿using CodeFinance.Application.Commands;
 using CodeFinance.Application.Events;
-using CodeFinance.Application.Handlers.Events;
 using CodeFinance.Domain.Core.Communication;
 using CodeFinance.Domain.Core.Extensions;
 using CodeFinance.Domain.Core.Messages.CommonMessages;
 using CodeFinance.Domain.Entidades;
 using CodeFinance.Domain.Interfaces.Repository;
 using CodeFinance.Domain.Interfaces.Services;
-using CodeFinance.Infra.Queue;
+using CodeFinance.Infra.Queue.Queues.Usuario;
+using CodeFinance.Infra.Queue.RabbitMQ;
 using MediatR;
+using Newtonsoft.Json;
 using Serilog;
 using System;
 using System.Threading;
@@ -26,27 +24,18 @@ namespace CodeFinance.Application.Handlers.Commands
     {
         private readonly ICriptografiaService _criptografiaService;
         private readonly IUsuarioRepository _usuarioRepository;
-        private readonly IMapper _mapper;
-        private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
-        private readonly IRabbitMQProvider _rabbit;
-        private readonly IMovimentoRepository _movimentoRepository;
+        private readonly IUsuarioMQAccess _usuarioMQAccess;
 
         public UsuarioCommandHandler(ILogger logger,
                                      IMediatorHandler mediator,
                                      ICriptografiaService criptografiaService,
                                      IUsuarioRepository usuarioRepository,
-                                     IMapper mapper,
-                                     Microsoft.Extensions.Configuration.IConfiguration configuration,
-                                     IRabbitMQProvider rabbit,
-                                     IMovimentoRepository movimentoRepository)
+                                     IUsuarioMQAccess usuarioMQAccess)
             : base(logger, mediator)
         {
             _criptografiaService = criptografiaService;
             _usuarioRepository = usuarioRepository;
-            _mapper = mapper;
-            _configuration = configuration;
-            _rabbit = rabbit;
-            _movimentoRepository = movimentoRepository;
+            _usuarioMQAccess = usuarioMQAccess;
         }
 
         public async Task<bool> Handle(CadastrarUsuarioCommand request, CancellationToken cancellationToken)
@@ -63,44 +52,32 @@ namespace CodeFinance.Application.Handlers.Commands
             }
 
             var hashSenha = _criptografiaService.Criptografar(request.Senha);
-            var novoUsuario = new Usuario(request.Nome, request.Sobrenome, request.Email, hashSenha, request.UsuarioPaiId);
-            var novoSaldo = new Saldo(novoUsuario.Id, 0);
+            var novoUsuario = new Usuario(request.Nome, request.Sobrenome, request.Email, hashSenha, new Saldo(0), request.UsuarioPaiId);
 
             _usuarioRepository.Adicionar(novoUsuario);
-            _movimentoRepository.Adicionar(novoSaldo);
 
-            novoUsuario.AdicionarEvento(new UsuarioCadastradoEvent(novoUsuario.Id));
+            novoUsuario.AdicionarEvento(new UsuarioCadastradoEvent(novoUsuario.Id, novoUsuario.Nome, novoUsuario.Sobrenome, novoUsuario.Email, DateTime.Now));
 
             return await _usuarioRepository.IUnitOfWork.Commit();
         }
 
         public async Task<bool> Handle(PublicarUsuarioFilaCommand request, CancellationToken cancellationToken)
         {
-            if (!ValidarComando(request))
+            if (!ValidarComandoEvent(request)) return false;
+
+            var usuario = await _usuarioRepository.ObterPorId(request.Id);
+
+            if (usuario == null)
             {
-                _logger.Warning("UsarioCommandHandler - PublicarUsuarioFilaCommand - Não foi possivel publicar o usuario - Id: {usuarioId}", request.Id.ToString());
+                _logger.Warning("UsuarioCommandHandler - PublicarUsuarioFilaCommand - Usuario nao encontrado na base de dados - Id: {usuarioId}", request.Id.ToString());
                 return false;
             }
 
-            var usuarioAdicionado = await _usuarioRepository.ObterPorId(request.Id);
-            var messageQueue = _mapper.Map<UsuarioElasticSeachDto>(usuarioAdicionado);
-
-            if(messageQueue == null)
+            _usuarioMQAccess.PublicarMensagem(new MQMessage()
             {
-                _logger.Warning("UsarioCommandHandler - PublicarUsuarioFilaCommand - Usuario nao encontrado na base de dados - Id: {usuarioId}", request.Id.ToString());
-                return false;
-            }
-
-            if (usuarioAdicionado.UsuarioPaiId.HasValue && usuarioAdicionado.UsuarioPaiId != Guid.Empty)
-            {
-                messageQueue.UsuarioPai = _mapper.Map<UsuarioDto>(await _usuarioRepository.ObterPorId(usuarioAdicionado.UsuarioPaiId.Value));
-            }
-
-            messageQueue.Saldo = _mapper.Map<SaldoDto>(await _movimentoRepository.ObterSaldoPorUsuario(messageQueue.Id));
-
-            var nomeFila = _configuration.GetSection("RabbitQueues")["UsuarioQueue"];
-
-            _rabbit.PublicarMensagem(nomeFila, messageQueue.Json());
+                ModelName = usuario.GetType().Name,
+                Body = JsonConvert.SerializeObject(usuario)
+            });
 
             return true;
         }

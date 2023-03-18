@@ -26,6 +26,7 @@ namespace CodeFinance.Data.Repositories
 
         public void Adicionar(Meta meta)
         {
+            meta.DataCadastro = DateTime.Now;
             _context.Metas.Add(meta);
         }
 

@@ -26,6 +26,7 @@ namespace CodeFinance.Data.Repositories
 
         public void Adicionar(Orcamento orcamento)
         {
+            orcamento.DataCadastro = DateTime.Now;
             _context.Orcamentos.Add(orcamento);
         }
 

@@ -9,7 +9,6 @@ namespace CodeFinance.Application.AutoMapper
         public DomainToDtoMappingProfile()
         {
             CreateMap<Usuario, UsuarioDto>();
-            CreateMap<Usuario, UsuarioElasticSeachDto>();
             CreateMap<Saldo, SaldoDto>();
         }
     }

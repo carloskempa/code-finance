@@ -1,5 +1,8 @@
+using AutoMapper;
+using CodeFinance.Application.AutoMapper;
 using CodeFinance.Infra.IoC;
 using CodeFinance.WebApi.Middlewares;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -33,6 +36,10 @@ namespace CodeFinance.WebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CodeFinance.WebApi", Version = "v1" });
             });
+
+            services.AddAutoMapper(typeof(DomainToDtoMappingProfile), typeof(DtoToDomainMappingProfile));
+
+            services.AddMediatR(typeof(Startup));
 
             services.RegisterServices(Configuration);
         }

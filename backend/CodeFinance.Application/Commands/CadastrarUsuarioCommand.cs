@@ -22,7 +22,7 @@ namespace CodeFinance.Application.Commands
 
         public override bool EhValido()
         {
-            return ValidationResult.IsValid;
+            return true;
         }
     }
 }

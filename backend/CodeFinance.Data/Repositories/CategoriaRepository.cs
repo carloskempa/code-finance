@@ -26,6 +26,7 @@ namespace CodeFinance.Data.Repositories
 
         public void Adicionar(Categoria categoria)
         {
+            categoria.DataCadastro = DateTime.Now;
             _context.Categorias.Add(categoria);
         }
 

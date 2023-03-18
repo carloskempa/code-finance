@@ -4,6 +4,8 @@ using CodeFinance.Domain.Entidades;
 using CodeFinance.Domain.Interfaces.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CodeFinance.Data.Repositories
@@ -21,7 +23,9 @@ namespace CodeFinance.Data.Repositories
 
         public async Task<Usuario> ObterPorEmail(string email)
         {
-            return await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(c => c.Email == email);
+            var result = await _context.Usuarios.FirstOrDefaultAsync(c => c.Email == email);
+
+            return result;
         }
 
         public async Task<Usuario> ObterPorId(Guid id)
@@ -31,8 +35,14 @@ namespace CodeFinance.Data.Repositories
                                           .FirstOrDefaultAsync(c=>c.Id == id);
         }
 
+        public async Task<IEnumerable<Usuario>> ObterListaUsuarioAdministrador()
+        {
+            return await _context.Usuarios.AsNoTracking().Where(c => c.Administrador == true).ToListAsync();
+        }
+
         public void Adicionar(Usuario usuario)
         {
+            usuario.DataCadastro = DateTime.Now;
             _context.Usuarios.Add(usuario);
         }
 
@@ -45,5 +55,6 @@ namespace CodeFinance.Data.Repositories
         {
             _context.Dispose();
         }
+
     }
 }

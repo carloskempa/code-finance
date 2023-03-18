@@ -6,7 +6,7 @@ namespace CodeFinance.Domain.Entidades
 {
     public class Meta : Entity
     {
-        public const int TITULO_LENGHT = 50;
+        public const int NOME_LENGHT = 50;
         public const int DESCRICAO_LENGHT = 500;
 
         public Meta(string nome, string descricao, string urlImagemCapa, decimal valorMeta, decimal saldoAtualMeta, DateTime dataInicio, DateTime dataFinal, Guid usuarioId)
@@ -60,7 +60,7 @@ namespace CodeFinance.Domain.Entidades
         {
             Validacoes.ValidarSeVazio(Nome, "Nome da meta é obrigatório. Por favor, insira um nome válido.");
             Validacoes.ValidarSeVazio(Descricao, "Descrição é obrigatório. Por favor, insira uma descrição válida.");
-            Validacoes.ValidarTamanho(Nome, TITULO_LENGHT, $"Nome inválido. Por favor, insira um nome com no máximo {TITULO_LENGHT} caracteres.");
+            Validacoes.ValidarTamanho(Nome, NOME_LENGHT, $"Nome inválido. Por favor, insira um nome com no máximo {NOME_LENGHT} caracteres.");
             Validacoes.ValidarTamanho(Descricao, DESCRICAO_LENGHT, $"Descrição inválida. Por favor, insira uma descrição com no máximo {DESCRICAO_LENGHT} caracteres.");
             Validacoes.ValidarSeMenorOuIgualQue(ValorMeta, 0, "Valor da meta inválido. Por favor, insira um valor maior que zero.");
             Validacoes.ValidarSeMenorQue(SaldoAtualMeta, 0, "Saldo inválido. Por favor, insira um saldo maior ou igual a zero.");

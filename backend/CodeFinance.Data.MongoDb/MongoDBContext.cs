@@ -1,6 +1,5 @@
 ﻿using CodeFinance.Data.MongoDb.Config;
 using CodeFinance.Domain.Entidades;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace CodeFinance.Data.MongoDb

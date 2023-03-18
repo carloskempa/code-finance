@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CodeFinance.Domain.Core\CodeFinance.Domain.Core.csproj" />
     <ProjectReference Include="..\CodeFinance.Domain\CodeFinance.Domain.csproj" />
+    <ProjectReference Include="..\CodeFinance.Infra.CrossCutting\CodeFinance.Infra.CrossCutting.csproj" />
     <ProjectReference Include="..\CodeFinance.Infra.Queue\CodeFinance.Infra.Queue.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
-﻿using CodeFinance.Domain.Entidades;
+﻿using CodeFinance.Data.MongoDb.Config;
+using CodeFinance.Domain.Entidades;
 using CodeFinance.Domain.Interfaces.Repository;
 using MongoDB.Driver;
 using System;
@@ -8,8 +9,8 @@ namespace CodeFinance.Data.MongoDb.Repositories
 {
     public class CategoriaMongoRepository : ICategoriaMongoRepository
     {
-        private readonly MongoDBContext _context;
-        public CategoriaMongoRepository(MongoDBContext context)
+        private readonly IMongoDBContext _context;
+        public CategoriaMongoRepository(IMongoDBContext context)
         {
             _context = context;
         }

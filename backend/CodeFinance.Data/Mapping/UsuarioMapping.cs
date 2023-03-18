@@ -49,8 +49,10 @@ namespace CodeFinance.Data.Mapping
                    .HasForeignKey(u => u.UsuarioPaiId);
 
             builder.HasOne(u => u.Saldo)
-                   .WithOne(c => c.Usuario)
-                   .HasForeignKey<Saldo>(c => c.UsuarioId);
+                   .WithOne(s => s.Usuario)
+                   .HasForeignKey<Saldo>(s => s.UsuarioId);
+
+            builder.ToTable("Usuario");
         }
     }
 }

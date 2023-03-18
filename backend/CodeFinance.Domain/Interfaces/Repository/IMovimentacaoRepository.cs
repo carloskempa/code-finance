@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CodeFinance.Domain.Interfaces.Repository
 {
-    public interface IMovimentoRepository : IRepository<Movimentacao>
+    public interface IMovimentacaoRepository : IRepository<Movimentacao>
     {
         Task<Movimentacao> ObterPorId(Guid id);
         void Adicionar(Movimentacao movimentacao);

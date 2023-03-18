@@ -23,24 +23,12 @@ namespace CodeFinance.Application.App
             _notifications = (DomainNotificationHandler)notifications;
         }
 
-        protected void TryCatch(Action action)
+        protected void TratarException(Exception ex)
         {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                if (ex is DomainException)
-                {
-                    NotificarErro("Validations", ex.Message);
-                    return;
-                }
-
-                _logger.Error(ex, $"Erro ao processar a solicitação - {ex.Message}");
-
-                throw;
-            }
+            if (ex is DomainException)
+                _logger.Warning(ex, $"{this.GetType().Name} - Solicitação nao processada - {ex.Message}");
+            else
+                _logger.Error(ex, $"{this.GetType().Name} - Erro ao processar a solicitação - {ex.Message}");
         }
 
         protected bool OperacaoValida()

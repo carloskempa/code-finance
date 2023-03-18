@@ -2,6 +2,7 @@
 using CodeFinance.Application.Dtos;
 using CodeFinance.Application.Interfaces.Application;
 using CodeFinance.Domain.Core.Communication;
+using CodeFinance.Domain.Core.DomainObjects;
 using CodeFinance.Domain.Core.Extensions;
 using CodeFinance.Domain.Core.Messages.CommonMessages;
 using MediatR;
@@ -24,21 +25,26 @@ namespace CodeFinance.Application.App
 
         public async Task<RetornoPadrao<UsuarioDto>> Cadastrar(CadastrarUsuarioDto usuario)
         {
-            _logger.Information("UsuarioApp - Iniciando cadastro - {usuario}", usuario.Json());
-
-            TryCatch(async () =>
+            try
             {
+                _logger.Information("UsuarioApp - Iniciando cadastro - {usuario}", usuario.Json());
+
                 var comando = new CadastrarUsuarioCommand(usuario.Nome, usuario.Sobrenome, usuario.Email, usuario.Senha, usuario.UsuarioPaiId);
                 await _mediatorHandler.EnviarComando(comando);
-            });
 
-            if (!OperacaoValida())
-            {
-                _logger.Warning("UsuarioApp - Erro ao salvar usuario - {lista}", ObterMensagensErro.Json()); ;
-                return Error<UsuarioDto>(ObterMensagensErro);
+                if (!OperacaoValida())
+                {
+                    _logger.Warning("UsuarioApp - Erro ao salvar usuario - {lista}", ObterMensagensErro.Json()); ;
+                    return Error<UsuarioDto>(ObterMensagensErro);
+                }
+
+                return Sucesso<UsuarioDto>("Usuário cadastrado com sucesso!");
             }
-
-            return Sucesso<UsuarioDto>("Usuário cadastrado com sucesso!");
+            catch (Exception ex)
+            {
+                TratarException(ex);
+                return Error<UsuarioDto>("Usuário cadastrado com sucesso!");
+            }
         }
 
         public Task<RetornoPadrao<UsuarioDto>> Logar(LogarUsuarioDto login)

@@ -11,7 +11,7 @@ namespace CodeFinance.Domain.Entidades
         public const int SOBRENOME_LENGHT = 100;
         public const int EMAIL_LENGHT = 250;
 
-        public Usuario(string nome, string sobrenome, string email, string senha, Guid? usuarioPaiId)
+        public Usuario(string nome, string sobrenome, string email, string senha, Saldo saldo, Guid? usuarioPaiId)
         {
             Nome = nome;
             Sobrenome = sobrenome;
@@ -20,9 +20,11 @@ namespace CodeFinance.Domain.Entidades
             UsuarioPaiId = usuarioPaiId;
             Status = UsuarioStatus.Pendente;
             Administrador = false;
+            Saldo = saldo;
 
             Validar();
         }
+        protected Usuario() { }
 
         public string Nome { get; private set; }
         public string Sobrenome { get; private set; }
